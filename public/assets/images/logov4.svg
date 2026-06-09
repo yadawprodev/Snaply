@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 280" width="100%" height="100%">
+  <rect width="100%" height="100%" fill="#000000" />
+  <defs>
+    <linearGradient id="purpleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8a73ff" />
+      <stop offset="100%" stop-color="#2c16ff" />
+    </linearGradient>
+  </defs>
+  <g transform="translate(40, 35)">
+    <circle cx="100" cy="100" r="88" fill="none" stroke="url(#purpleGradient)" stroke-width="16" />
+    <circle cx="102" cy="100" r="42" fill="none" stroke="url(#purpleGradient)" stroke-width="16" />
+    <circle cx="146" cy="56" r="11" fill="url(#purpleGradient)" />
+  </g>
+  <text x="275" y="178" font-family="Georgia, serif" font-size="132" fill="#ffffff" font-weight="normal" letter-spacing="-2">Snaply</text>
+</svg>
