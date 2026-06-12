@@ -570,3 +570,37 @@ export const getCurrentUser = async () => {
     throw error;
   }
 };
+
+// ==================== FOLLOW USERS ============================
+export async function followUser(
+  followedUserId: string,
+  followedUserFollowers: string[],
+  currentUserId: string,
+  currentUserFollowing: string[],
+) {
+  try {
+    // Update the followed user's followers array
+    const updatedFollowedUser = await databases.updateDocument({
+      databaseId: appwriteConfig.databaseId,
+      collectionId: appwriteConfig.userTableId,
+      documentId: followedUserId,
+      data: { followers: followedUserFollowers },
+    });
+
+    // Update the current user's following array
+    const updatedCurrentUser = await databases.updateDocument({
+      databaseId: appwriteConfig.databaseId,
+      collectionId: appwriteConfig.userTableId,
+      documentId: currentUserId,
+      data: { following: currentUserFollowing },
+    });
+
+    if (!updatedFollowedUser || !updatedCurrentUser)
+      throw new Error('Failed to follow user');
+
+    return { updatedFollowedUser, updatedCurrentUser };
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}

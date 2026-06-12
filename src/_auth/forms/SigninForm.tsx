@@ -50,7 +50,6 @@ const SigninForm = () => {
         email: values.email,
         password: values.password,
       });
-      console.log('Session, ', session);
 
       if (!session) {
         return toast.error('Sign in failed! Please try again.');

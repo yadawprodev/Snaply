@@ -10,6 +10,8 @@ export const INITIAL_USER = {
   email: '',
   imageUrl: '',
   bio: '',
+  followers: [],
+  following: [],
 };
 
 export type AuthState = {
@@ -20,6 +22,11 @@ export type AuthState = {
   setUser: (user: IUser) => void;
   setIsAuthenticated: (value: boolean) => void;
   checkAuthUser: () => Promise<boolean>;
+
+  followers: string[];
+  following: string[];
+  setFollowers: (followers: string[]) => void;
+  setFollowing: (following: string[]) => void;
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -30,6 +37,11 @@ export const useAuthStore = create<AuthState>((set) => ({
   setUser: (user) => set({ user }),
 
   setIsAuthenticated: (value) => set({ isAuthenticated: value }),
+
+  followers: [],
+  following: [],
+  setFollowers: (followers) => set({ followers }),
+  setFollowing: (following) => set({ following }),
 
   checkAuthUser: async () => {
     try {
@@ -47,8 +59,12 @@ export const useAuthStore = create<AuthState>((set) => ({
             email: currentUser.email,
             imageUrl: currentUser.imageUrl,
             bio: currentUser.bio,
+            followers: currentUser.followers ?? [],
+            following: currentUser.following ?? [],
           },
           isAuthenticated: true,
+          followers: currentUser.followers ?? [],
+          following: currentUser.following ?? [],
         });
         return true;
       }

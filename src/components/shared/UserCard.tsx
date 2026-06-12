@@ -30,11 +30,9 @@ const UserCard = ({ user }: UserCardProps) => {
         </p>
       </div>
 
-      {!isCurrentUser && (
-        <Button type='button' size='sm' className='shad-button_primary px-5'>
-          Follow
-        </Button>
-      )}
+      <Button type='button' size='sm' className='shad-button_primary px-5'>
+        Follow
+      </Button>
     </Link>
   );
 };

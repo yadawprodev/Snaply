@@ -24,6 +24,7 @@ import {
   getUserById,
   updateUser,
   getPostsByIds,
+  followUser,
 } from '../appwrite/api';
 
 import type { NewPost, NewUser, UpdatePost, UpdateUser } from '@/types';
@@ -245,6 +246,40 @@ export const useUpdateUser = () => {
       queryClient.invalidateQueries({ queryKey: [QueryKeys.GET_CURRENT_USER] });
       queryClient.invalidateQueries({
         queryKey: [QueryKeys.GET_USER_BY_ID, data?.$id],
+      });
+    },
+  });
+};
+
+// ===================== FOLLOW USER ========================
+export const useFollowUser = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      followedUserId,
+      followedUserFollowers,
+      currentUserId,
+      currentUserFollowing,
+    }: {
+      followedUserId: string;
+      followedUserFollowers: string[];
+      currentUserId: string;
+      currentUserFollowing: string[];
+    }) =>
+      followUser(
+        followedUserId,
+        followedUserFollowers,
+        currentUserId,
+        currentUserFollowing,
+      ),
+
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: [QueryKeys.GET_USER_BY_ID, data?.updatedFollowedUser.$id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QueryKeys.GET_USER_BY_ID, data?.updatedCurrentUser.$id],
       });
     },
   });

@@ -8,7 +8,10 @@ import {
 } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
-import { useGetUserById } from '@/lib/tanstack-query/queriesAndMutaions';
+import {
+  useFollowUser,
+  useGetUserById,
+} from '@/lib/tanstack-query/queriesAndMutaions';
 import { useAuthStore } from '@/zustand_store/authStore';
 
 import LikedPosts from './LikedPosts';
@@ -28,14 +31,55 @@ const StatBlock = ({ value, label }: StabBlockProps) => (
 
 const Profile = () => {
   const { id } = useParams();
+
   const user = useAuthStore((state) => state.user);
-  const { pathname } = useLocation();
+
+  const followers = useAuthStore((state) => state.followers);
+  const following = useAuthStore((state) => state.following);
+  const setFollowing = useAuthStore((state) => state.setFollowing);
+
+  const setFollowers = useAuthStore((state) => state.setFollowers);
 
   const { data: currentUser } = useGetUserById(id || '');
 
-  const isHidden = user.id !== currentUser?.$id;
+  const { pathname } = useLocation();
+  const isOwnProfile = user.id === currentUser?.$id;
 
-  console.log('currentUser', currentUser);
+  const { mutate: followUser } = useFollowUser();
+
+  function handleFollowUser(e: React.MouseEvent) {
+    e.stopPropagation();
+
+    // Update followed user's followers
+    let cpyFollowers = [...followers];
+    const hasFollowed = cpyFollowers.includes(user.id);
+
+    if (hasFollowed) {
+      cpyFollowers = cpyFollowers.filter((id) => id !== user.id);
+    } else {
+      cpyFollowers.push(user.id);
+    }
+
+    // Update current user's following
+    let cpyFollowing = [...following];
+    const isFollowing = cpyFollowing.includes(currentUser!.$id);
+
+    if (isFollowing) {
+      cpyFollowing = cpyFollowing.filter((id) => id !== currentUser!.$id);
+    } else {
+      cpyFollowing.push(currentUser!.$id);
+    }
+
+    setFollowers(cpyFollowers);
+    setFollowing(cpyFollowing);
+
+    followUser({
+      followedUserId: currentUser!.$id,
+      followedUserFollowers: cpyFollowers,
+      currentUserId: user.id,
+      currentUserFollowing: cpyFollowing,
+    });
+  }
 
   return (
     <div className='profile-container'>
@@ -63,21 +107,26 @@ const Profile = () => {
                 value={currentUser?.posts.length || ''}
                 label='Posts'
               />
-              <StatBlock value={20} label='Followers' />
-              <StatBlock value={20} label='Following' />
+              <StatBlock
+                value={currentUser?.followers?.length ?? 0}
+                label='Followers'
+              />
+              <StatBlock
+                value={currentUser?.following?.length ?? 0}
+                label='Following'
+              />
             </div>
-
             <p className='small-medium md:base-medium text-center xl:text-left mt-7 max-w-screen-sm'>
               {currentUser?.bio}
             </p>
           </div>
 
           <div className='flex justify-center gap-4'>
-            <div className={`${isHidden && 'hidden'}`}>
+            <div className={`${!isOwnProfile && 'hidden'}`}>
               <Link
                 to={`/update-profile/${currentUser?.$id}`}
                 className={`h-12 bg-dark-4 px-5 text-light-1 flex-center gap-2 rounded-lg ${
-                  isHidden && 'hidden'
+                  !isOwnProfile && 'hidden'
                 }`}
               >
                 <img
@@ -91,16 +140,24 @@ const Profile = () => {
                 </p>
               </Link>
             </div>
-            <div className={`${user.id === id && 'hidden'}`}>
-              <Button type='button' className='shad-button_primary px-8'>
-                Follow
-              </Button>
-            </div>
+
+            {/* Follow button — only show on other profiles */}
+            {!isOwnProfile && (
+              <div>
+                <Button
+                  onClick={handleFollowUser}
+                  type='button'
+                  className='shad-button_primary px-8'
+                >
+                  {followers.includes(user.id) ? 'Unfollow' : 'Follow'}
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {!isHidden && (
+      {isOwnProfile && (
         <div className='flex max-w-5xl w-full'>
           <Link
             to={`/profile/${id}`}
@@ -140,7 +197,7 @@ const Profile = () => {
             <GridPostList posts={currentUser?.posts ?? []} showUser={false} />
           }
         />
-        {!isHidden && <Route path='/liked-posts' element={<LikedPosts />} />}
+        {isOwnProfile && <Route path='/liked-posts' element={<LikedPosts />} />}
       </Routes>
       <Outlet />
     </div>

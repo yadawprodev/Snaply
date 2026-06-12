@@ -48,8 +48,13 @@ const PostForm = ({ post, action }: PostFormProps) => {
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
 
-  const form = useForm<z.infer<typeof postValidation>>({
-    resolver: zodResolver(postValidation),
+  const schema =
+    action === 'Update'
+      ? postValidation.extend({ file: z.custom<File[]>().optional() })
+      : postValidation;
+
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
     defaultValues: {
       caption: post ? post?.caption : '',
       file: [],
@@ -58,7 +63,7 @@ const PostForm = ({ post, action }: PostFormProps) => {
     },
   });
 
-  function cancelForm() {
+  function clearForm() {
     if (action === 'Update') {
       navigate(-1);
     } else {
@@ -68,10 +73,11 @@ const PostForm = ({ post, action }: PostFormProps) => {
   }
 
   // Form submit handler
-  async function onSubmit(values: z.infer<typeof postValidation>) {
+  async function onSubmit(values: z.infer<typeof schema>) {
     if (post && action === 'Update') {
       const updatedPost = await updatePost({
         ...values,
+        file: values.file ?? [],
         postId: post.$id,
         imageUrl: post?.imageUrl,
         imageId: post?.imageId,
@@ -93,6 +99,7 @@ const PostForm = ({ post, action }: PostFormProps) => {
 
     const newPost = await createPost({
       ...values,
+      file: values.file ?? [],
       userId: user.id,
     });
 
@@ -185,7 +192,7 @@ const PostForm = ({ post, action }: PostFormProps) => {
           <Button
             type='button'
             className='shad-button_dark_4'
-            onClick={cancelForm} // forces FileUploader to remount
+            onClick={clearForm} // forces FileUploader to remount
           >
             Clear
           </Button>
