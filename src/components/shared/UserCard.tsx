@@ -3,16 +3,11 @@ import type { User } from '@/types';
 import { Link } from 'react-router-dom';
 import { Button } from '../ui/button';
 
-import { useAuthStore } from '@/zustand_store/authStore';
-
 type UserCardProps = {
   user: User;
 };
 
 const UserCard = ({ user }: UserCardProps) => {
-  const currentUser = useAuthStore((state) => state.user);
-  const isCurrentUser = user.$id === currentUser.id;
-
   return (
     <Link to={`/profile/${user.$id}`} className='user-card'>
       <img
