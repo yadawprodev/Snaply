@@ -6,9 +6,7 @@ import { useGetCurrentUser } from '@/lib/tanstack-query/queriesAndMutaions';
 
 const LikedPosts = () => {
   const { data: currentUser } = useGetCurrentUser();
-
-  console.log('currentUser', currentUser);
-
+  
   if (!currentUser)
     return (
       <div className='flex-center w-full h-full'>
